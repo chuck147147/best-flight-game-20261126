@@ -42,7 +42,10 @@ RR.Plane=class{
   c.fillStyle='#f6bc5d';c.beginPath();c.moveTo(-36,-34);c.lineTo(36,-35);c.lineTo(45,-29);c.lineTo(-41,-26);c.closePath();c.fill();c.stroke();c.fillStyle='#ffe1a1';c.fillRect(-33,-34,65,3);
   c.fillStyle='#173f46';c.font='bold 9px monospace';c.fillText('RR–07',-39,0);
   c.fillStyle='#eab05b';c.beginPath();c.moveTo(-56,0);c.lineTo(-76,7);c.lineTo(-44,8);c.lineTo(-38,3);c.fill();
-  c.fillStyle='#244c50';c.fillRect(47,-9,7,19);c.strokeStyle='#fff3c9aa';c.lineWidth=3;c.beginPath();c.ellipse(57,0,3,26*Math.max(.25,Math.abs(Math.sin(t*48))),0,0,7);c.stroke();
+  c.fillStyle='#244c50';c.fillRect(47,-9,7,19);
+  // Open blade strokes stay attached to the hub; no closed loop resembling a glyph.
+  c.fillRect(52,-2,6,4);c.strokeStyle='#fff3c933';c.lineWidth=5;c.beginPath();c.moveTo(57,-25);c.lineTo(57,25);c.stroke();
+  const blade=16+10*Math.abs(Math.sin(t*48));c.strokeStyle='#fff3c9bb';c.lineWidth=2;c.beginPath();c.moveTo(55,-blade);c.lineTo(59,blade);c.stroke();
   c.shadowBlur=9;c.shadowColor='#f26656';c.fillStyle='#fc8067';c.beginPath();c.arc(-38,-28,3,0,7);c.fill();c.shadowColor='#c4f6c0';c.fillStyle='#d4f5ba';c.beginPath();c.arc(40,-30,2.5,0,7);c.fill();c.restore();
  }
 };

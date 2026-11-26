@@ -5,9 +5,11 @@ RR.missions=[
  {name:'STORM DELIVERY',tag:'03 / PRECIOUS CARGO',goal:'Beat the gusts. Deliver before your fuel runs dry.',length:8500,wind:27,fuel:28,color:'#b9cfde'}
 ];
 RR.World=class{
- constructor(mission=0,seed=7){this.mission=mission;this.seed=seed;this.spec=RR.missions[mission];this.end=this.spec.length;this.runways=[{x:0,w:600,h:95,name:'ALDER FIELD',id:0},{x:this.end-600,w:750,h:130,name:mission===1?'HIKER’S REST':'HIGH PASS STRIP',id:1}];this.rings=Array.from({length:8},(_,i)=>({x:950+i*700,y:300+Math.sin(i*1.2)*100,r:62,hit:false,miss:false}));this.rings.forEach(r=>{r.y=Math.max(r.y,this.ground(r.x)+100);});this.balloons=[{x:2550,y:390},{x:4400,y:340},{x:6100,y:430}];}
+ constructor(mission=0,seed=7){this.mission=mission;this.seed=seed;this.spec=RR.missions[mission];this.end=this.spec.length;this.runways=[{x:0,w:600,h:95,fieldElevationFt:410,name:'ALDER FIELD',id:0},{x:this.end-600,w:750,h:130,fieldElevationFt:524.8,name:mission===1?'HIKER’S REST':'HIGH PASS STRIP',id:1}];this.rings=Array.from({length:8},(_,i)=>({x:950+i*700,y:300+Math.sin(i*1.2)*100,r:62,hit:false,miss:false}));this.rings.forEach(r=>{r.y=Math.max(r.y,this.ground(r.x)+100);});this.balloons=[{x:2550,y:390},{x:4400,y:340},{x:6100,y:430}];}
  raw(x){return 90+Math.sin(x*.0022)*45+Math.sin(x*.006+1)*30+Math.max(0,Math.sin((x-1400)*.003))*100;}
  ground(x){let h=this.raw(x);for(const r of this.runways){let d=x<r.x?r.x-x:x>r.x+r.w?x-r.x-r.w:0;if(d<220)h=r.h+(h-r.h)*d/220;}return h;}
+ // A shared MSL datum preserves the existing metre-based flight and terrain coordinates.
+ mslFeet(y){const origin=this.runways[0];return origin.fieldElevationFt+(y-origin.h)*3.28;}
  runway(x){return this.runways.find(r=>x>=r.x&&x<=r.x+r.w);}
  wind(x,t){return Math.sin(t*.8+x*.001)*this.spec.wind+Math.sin(t*2.7)*this.spec.wind*.35;}
  draw(ctx,cam,t){
