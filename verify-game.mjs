@@ -6,7 +6,7 @@ const context = { console, Math, Set, URLSearchParams, location:{search:''}, loc
 context.window=context;
 context.addEventListener=()=>{};
 const gradient={addColorStop(){}};
-const draw=new Proxy({}, {get(o,k){if(k==='createLinearGradient')return ()=>gradient;if(k in o)return o[k];return (...args)=>{for(const v of args)if(typeof v==='number')assert.ok(Number.isFinite(v),`Nonfinite drawing argument: ${String(k)}`);};},set(o,k,v){o[k]=v;return true;}});
+const draw=new Proxy({}, {get(o,k){if(k==='createLinearGradient'||k==='createRadialGradient')return ()=>gradient;if(k in o)return o[k];return (...args)=>{for(const v of args)if(typeof v==='number')assert.ok(Number.isFinite(v),`Nonfinite drawing argument: ${String(k)}`);};},set(o,k,v){o[k]=v;return true;}});
 const canvas={getContext:()=>draw,addEventListener(){},focus(){},getBoundingClientRect(){return {left:0,top:0,width:1280,height:800}}};
 context.document={getElementById:()=>canvas};context.requestAnimationFrame=()=>{};
 vm.createContext(context);

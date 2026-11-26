@@ -10,7 +10,7 @@ RR.ui={
   t(c,'FLIGHT SCORE',922,26,10,'#a9c2b8');t(c,String(g.score).padStart(5,'0'),922,52,23);t(c,'LOCAL TIME',1128,26,10,'#a9c2b8');t(c,`06:${String(12+Math.floor(g.time/60)).padStart(2,'0')}`,1128,51,22);
   let next=w.mission===0?w.rings.find(r=>!r.hit):null;let target=next?next.x:w.end-240;let distance=Math.max(0,target-p.x);
   this.box(c,30,95,228,57,'#153e43d9','#a3b49b66');t(c,next?`NEXT GATE  /  ${w.rings.indexOf(next)+1}`:'APPROACH  /  SHORT STRIP',46,117,11,'#c2d0b8');t(c,`${(distance/1000).toFixed(2)} km  →`,46,141,21,'#ffd28a');
-  t(c,'WIND',1100,111,11,'#244e52');t(c,`${w.wind(p.x,g.time)>=0?'→':'←'} ${Math.abs(w.wind(p.x,g.time)).toFixed(0)} KT`,1100,136,21,'#244e52');
+  t(c,'WIND',1100,111,11,w.mission===2?'#dce8dd':'#244e52');t(c,`${w.wind(p.x,g.time)>=0?'→':'←'} ${Math.abs(w.wind(p.x,g.time)).toFixed(0)} KT`,1100,136,21,w.mission===2?'#dce8dd':'#244e52');
   if(g.messageTime>0){c.textAlign='center';this.box(c,420,98,440,44,'#173f44e8','#cfa75f');t(c,g.message,640,126,15,'#ffdb92');c.textAlign='left';}
   if(p.stall&&g.state==='play'){c.textAlign='center';t(c,'STALL  /  LOWER THE NOSE · ADD POWER',640,190,21,'#963e30');c.textAlign='left';}
   // The cockpit strip stays legible against every landscape.

@@ -7,7 +7,7 @@ const browser = await chromium.launch({ executablePath: '/home/hatch/.cache/ms-p
 const shots = [
   ['1-cover.png', 'cover'],
   ['2-takeoff.png', 'takeoff'],
-  ['3-canyon.png', 'canyon'],
+  ['3-storm.png', 'storm'],
   ['4-landing.png', 'landing'],
 ];
 for (const [file, shot] of shots) {

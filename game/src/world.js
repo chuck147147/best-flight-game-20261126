@@ -14,10 +14,13 @@ RR.World=class{
  wind(x,t){return Math.sin(t*.8+x*.001)*this.spec.wind+Math.sin(t*2.7)*this.spec.wind*.35;}
  draw(ctx,cam,t){
   const c=ctx,sy=y=>560-(y-cam.y),sx=x=>x-cam.x;
-  let sky=c.createLinearGradient(0,0,0,660);sky.addColorStop(0,this.mission===2?'#6b8f9b':'#87b5b7');sky.addColorStop(.55,'#efd1a3');sky.addColorStop(1,'#ffe5ad');c.fillStyle=sky;c.fillRect(0,0,1280,800);
-  c.fillStyle='#f9dfaa';c.beginPath();c.arc(1020-cam.x*.018,153,69,0,Math.PI*2);c.fill();c.strokeStyle='#f7dfad55';c.lineWidth=20;c.stroke();
+  let sky=c.createLinearGradient(0,0,0,660);if(this.mission===2){sky.addColorStop(0,'#344752');sky.addColorStop(.55,'#718780');sky.addColorStop(1,'#c5cdca');}else{sky.addColorStop(0,'#87b5b7');sky.addColorStop(.55,'#efd1a3');sky.addColorStop(1,'#ffe5ad');}c.fillStyle=sky;c.fillRect(0,0,1280,800);
+  if(this.mission===2){
+   c.save();c.globalAlpha=.16;c.fillStyle='#d8dfd8';c.beginPath();c.arc(1020-cam.x*.018,153,69,0,Math.PI*2);c.fill();c.restore();
+   for(let i=0;i<3;i++){c.save();c.translate(140+i*420-cam.x*.008,85+i*33);c.scale(340,76);const cloud=c.createRadialGradient(0,0,.1,0,0,1);cloud.addColorStop(0,'#263843b3');cloud.addColorStop(.65,'#26384380');cloud.addColorStop(1,'#26384300');c.fillStyle=cloud;c.beginPath();c.ellipse(0,0,1,1,0,0,Math.PI*2);c.fill();c.restore();}
+  }else{c.fillStyle='#f9dfaa';c.beginPath();c.arc(1020-cam.x*.018,153,69,0,Math.PI*2);c.fill();c.strokeStyle='#f7dfad55';c.lineWidth=20;c.stroke();}
   // Quiet bands of cloud and three individually faceted mountain ranges.
-  for(let i=0;i<9;i++){let x=((i*247-cam.x*.08+t*3)%1700+1700)%1700-180,y=78+(i%3)*51;c.fillStyle='#fff2d24a';c.beginPath();c.ellipse(x,y,75+(i%2)*45,8,0,0,7);c.fill();}
+  if(this.mission!==2)for(let i=0;i<9;i++){let x=((i*247-cam.x*.08+t*3)%1700+1700)%1700-180,y=78+(i%3)*51;c.fillStyle='#fff2d24a';c.beginPath();c.ellipse(x,y,75+(i%2)*45,8,0,0,7);c.fill();}
   const colors=[['#8aa5a2','#b5c2b5'],['#618f91','#91b0a9'],['#326f77','#528c8c']];
   colors.forEach((col,l)=>{let par=.11+l*.12,spacing=310-l*30,base=505+l*40,shift=cam.x*par;for(let i=Math.floor(shift/spacing)-2;i<Math.floor(shift/spacing)+7;i++){let x=i*spacing-shift,peak=165+l*45+Math.sin(i*2.7+this.seed)*65;c.fillStyle=col[0];c.beginPath();c.moveTo(x-spacing*.7,base);c.lineTo(x+spacing*.32,peak);c.lineTo(x+spacing*1.2,base);c.fill();c.fillStyle=col[1];c.beginPath();c.moveTo(x+spacing*.32,peak);c.lineTo(x+spacing*.56,base);c.lineTo(x+spacing*1.2,base);c.fill();if(l<2){c.fillStyle=l===0?'#edf0d9':'#d0dccc';c.beginPath();c.moveTo(x+spacing*.32,peak);c.lineTo(x+spacing*.11,peak+65);c.lineTo(x+spacing*.27,peak+52);c.lineTo(x+spacing*.36,peak+73);c.lineTo(x+spacing*.43,peak+45);c.lineTo(x+spacing*.52,peak+69);c.fill();}}});
   // River beneath the foreground bank: changing width gives a winding valley.
@@ -38,6 +41,6 @@ RR.World=class{
   if(this.mission===0)for(let i=0;i<this.rings.length;i++){const r=this.rings[i],x=sx(r.x),y=sy(r.y);if(x< -90||x>1380)continue;c.save();c.translate(x,y);c.strokeStyle=r.hit?'#8cd6b5':'#ffc56b';c.lineWidth=9;c.shadowColor='#ffc56b';c.shadowBlur=r.hit?0:19;c.beginPath();c.ellipse(0,0,23,r.r,0,0,7);c.stroke();c.shadowBlur=0;c.strokeStyle='#fff3be';c.lineWidth=2;c.beginPath();c.ellipse(-3,-2,23,r.r-3,0,Math.PI,Math.PI*2);c.stroke();c.fillStyle='#123e44';c.beginPath();c.arc(0,-r.r-24,15,0,7);c.fill();c.fillStyle='#ffe3a0';c.font='bold 13px monospace';c.textAlign='center';c.fillText(String(i+1).padStart(2,'0'),0,-r.r-19);c.restore();}
   for(const b of this.balloons){let x=sx(b.x),y=sy(b.y+Math.sin(t*.6+b.x)*12);if(x< -50||x>1330)continue;c.fillStyle='#bc7660';c.beginPath();c.ellipse(x,y,23,30,0,0,7);c.fill();c.fillStyle='#f3c98c';c.beginPath();c.ellipse(x,y,9,30,0,0,7);c.fill();c.strokeStyle='#e1bc86';c.lineWidth=1;c.beginPath();c.moveTo(x-10,y+25);c.lineTo(x-6,y+43);c.lineTo(x+6,y+43);c.lineTo(x+10,y+25);c.stroke();c.fillStyle='#775347';c.fillRect(x-7,y+39,14,9);}
   c.strokeStyle='#264f54';c.lineWidth=2;for(let i=0;i<6;i++){let x=((i*87+650-cam.x*.3+t*19)%1450+1450)%1450,y=155+Math.sin(i*2)*30;c.beginPath();c.moveTo(x-7,y-3);c.quadraticCurveTo(x-3,y-8-Math.sin(t*5+i)*4,x,y);c.quadraticCurveTo(x+4,y-8-Math.sin(t*5+i)*4,x+9,y-3);c.stroke();}
-  if(this.mission===2){c.strokeStyle='#e9e4ce55';c.lineWidth=1;for(let i=0;i<55;i++){let x=((i*73-t*250)%1340+1340)%1340,y=(i*47+t*50)%640;c.beginPath();c.moveTo(x,y);c.lineTo(x-22,y+8);c.stroke();}}
+  if(this.mission===2){c.strokeStyle='#e9e4ce55';c.lineWidth=1;for(let i=0;i<75;i++){let x=((i*73-t*250)%1340+1340)%1340,y=(i*47+t*50)%640;c.beginPath();c.moveTo(x,y);c.lineTo(x-32,y+12);c.stroke();}}
  }
 };

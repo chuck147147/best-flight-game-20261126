@@ -1,5 +1,5 @@
 RR.Plane=class{
- constructor(world){this.x=125;this.y=world.ground(this.x)+15;this.vx=0;this.vy=0;this.pitch=0;this.throttle=.18;this.fuel=world.spec.fuel;this.hp=100;this.boost=100;this.boosting=false;this.grounded=true;this.invincible=0;this.stall=false;this.trail=[];this.landed=new Set();}
+ constructor(world){this.world=world;this.x=125;this.y=world.ground(this.x)+15;this.vx=0;this.vy=0;this.pitch=0;this.throttle=.18;this.fuel=world.spec.fuel;this.hp=100;this.boost=100;this.boosting=false;this.grounded=true;this.invincible=0;this.stall=false;this.trail=[];this.landed=new Set();}
  update(dt,g){const input=RR.input,w=g.world;
   this.throttle=Math.max(0,Math.min(1,this.throttle+(input.held('w','arrowup')?dt*.35:0)-(input.held('s','arrowdown')?dt*.35:0)));
   if(input.drag)this.throttle=Math.max(0,Math.min(1,(770-input.pointer.y)/84));
@@ -31,6 +31,7 @@ RR.Plane=class{
  }
  damage(amount,g){if(this.invincible>0)return;this.hp=Math.max(0,this.hp-amount);this.invincible=1.6;g.shake=12;g.message='HARD HIT · CHECK AIRFRAME';g.messageTime=2.5;RR.audio.hit();}
  draw(c,cam,t){let x=this.x-cam.x,y=560-(this.y-cam.y);
+  if(!this.grounded){const ground=this.world.ground(this.x),fade=Math.max(0,1-Math.max(0,this.y-ground)/500);c.save();c.translate(x,560-(ground-cam.y));c.scale(58*fade+8,7);const shadow=c.createRadialGradient(0,0,0,0,0,1);shadow.addColorStop(0,`rgba(10,34,39,${.22*fade})`);shadow.addColorStop(1,'rgba(10,34,39,0)');c.fillStyle=shadow;c.beginPath();c.ellipse(0,0,1,1,0,0,Math.PI*2);c.fill();c.restore();}
   c.save();c.strokeStyle=this.boosting?'#ffdb8c88':'#fff1c322';c.lineWidth=this.boosting?4:2;c.beginPath();this.trail.forEach(p=>c.lineTo(p.x-cam.x,560-(p.y-cam.y)));c.stroke();c.translate(x,y);c.rotate(-this.pitch);
   if(this.invincible>0&&Math.floor(t*12)%2)c.globalAlpha=.65;
   // Landing gear, wing struts, and a high wing with visible underside.
