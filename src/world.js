@@ -1,11 +1,11 @@
 /* World coordinates use metres rightward, and altitude upward. */
 RR.missions=[
- {name:'RING RUN',tag:'01 / THE GOLDEN TRAIL',goal:'Thread all 8 rings, then bring her home.',length:6900,wind:7,fuel:100,color:'#f4bc60'},
- {name:'CANYON RESCUE',tag:'02 / A LIGHT IN THE VALLEY',goal:'Find the smoke. Land gently at Hiker’s Rest.',length:5100,wind:12,fuel:85,color:'#8ed1bc'},
- {name:'STORM DELIVERY',tag:'03 / PRECIOUS CARGO',goal:'Beat the gusts. Deliver before your fuel runs dry.',length:8500,wind:27,fuel:28,color:'#b9cfde'}
+ {name:'RING RUN',tag:'01 / THE GOLDEN TRAIL',goal:'Thread all 12 rings, then bring her home.',length:19600,wind:7,fuel:100,color:'#f4bc60'},
+ {name:'CANYON RESCUE',tag:'02 / A LIGHT IN THE VALLEY',goal:'Find the smoke. Land gently at Hiker’s Rest.',length:15600,wind:12,fuel:85,color:'#8ed1bc'},
+ {name:'STORM DELIVERY',tag:'03 / PRECIOUS CARGO',goal:'Beat the gusts. Deliver before your fuel runs dry.',length:20800,wind:27,fuel:70,color:'#b9cfde'}
 ];
 RR.World=class{
- constructor(mission=0,seed=7){this.mission=mission;this.seed=seed;this.spec=RR.missions[mission];this.end=this.spec.length;this.runways=[{x:0,w:600,h:95,fieldElevationFt:410,name:'ALDER FIELD',id:0},{x:this.end-600,w:750,h:130,fieldElevationFt:524.8,name:mission===1?'HIKER’S REST':'HIGH PASS STRIP',id:1}];this.rings=Array.from({length:8},(_,i)=>({x:950+i*700,y:300+Math.sin(i*1.2)*100,r:62,hit:false,miss:false}));this.rings.forEach(r=>{r.y=Math.max(r.y,this.ground(r.x)+100);});this.balloons=[{x:2550,y:390},{x:4400,y:340},{x:6100,y:430}];}
+ constructor(mission=0,seed=7){this.mission=mission;this.seed=seed;this.spec=RR.missions[mission];this.end=this.spec.length;this.runways=[{x:0,w:600,h:95,fieldElevationFt:410,name:'ALDER FIELD',id:0},{x:this.end-600,w:750,h:130,fieldElevationFt:524.8,name:mission===1?'HIKER’S REST':'HIGH PASS STRIP',id:1}];this.rings=Array.from({length:12},(_,i)=>({x:1000+i*1500,y:300+Math.sin(i*1.2)*100,r:62,hit:false,miss:false}));this.rings.forEach(r=>{r.y=Math.max(r.y,this.ground(r.x)+100);});this.balloons=[{x:Math.round(this.end*.24),y:390},{x:Math.round(this.end*.48),y:340},{x:Math.round(this.end*.72),y:430}];}
  raw(x){return 90+Math.sin(x*.0022)*45+Math.sin(x*.006+1)*30+Math.max(0,Math.sin((x-1400)*.003))*100;}
  ground(x){let h=this.raw(x);for(const r of this.runways){let d=x<r.x?r.x-x:x>r.x+r.w?x-r.x-r.w:0;if(d<220)h=r.h+(h-r.h)*d/220;}return h;}
  // A shared MSL datum preserves the existing metre-based flight and terrain coordinates.
