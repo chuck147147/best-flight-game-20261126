@@ -10,7 +10,7 @@ const draw=new Proxy({}, {get(o,k){if(k==='createLinearGradient'||k==='createRad
 const canvas={getContext:()=>draw,addEventListener(){},focus(){},getBoundingClientRect(){return {left:0,top:0,width:1280,height:800}}};
 context.document={getElementById:()=>canvas};context.requestAnimationFrame=()=>{};
 vm.createContext(context);
-for(const name of ['audio','input','world','plane','hud','shots','main'])vm.runInContext(readFileSync(`game/src/${name}.js`,'utf8'),context,{filename:name+'.js'});
+for(const name of ['audio','input','world','plane','hud','chase','shots','main'])vm.runInContext(readFileSync(`game/src/${name}.js`,'utf8'),context,{filename:name+'.js'});
 const {RR}=context;
 const g=RR.game;
 const step=(n=1)=>{for(let i=0;i<n;i++)g.update(1/60);};
