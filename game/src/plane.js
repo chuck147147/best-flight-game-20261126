@@ -37,16 +37,19 @@ RR.Plane=class{
   // Landing gear, wing struts, and a high wing with visible underside.
   c.strokeStyle='#173f46';c.lineWidth=4;c.beginPath();c.moveTo(-10,8);c.lineTo(-6,26);c.moveTo(19,5);c.lineTo(11,27);c.stroke();
   c.fillStyle='#143b42';for(const wx of [-6,12]){c.beginPath();c.arc(wx,25,7,0,7);c.fill();c.fillStyle='#9bb4a5';c.beginPath();c.arc(wx,25,2,0,7);c.fill();c.fillStyle='#143b42';}
-  c.fillStyle='#e9a449';c.strokeStyle='#173f46';c.lineWidth=2;c.beginPath();c.moveTo(-62,1);c.lineTo(-67,-27);c.lineTo(-55,-27);c.lineTo(-38,-7);c.lineTo(24,-14);c.quadraticCurveTo(48,-12,51,0);c.quadraticCurveTo(46,14,22,14);c.lineTo(-49,5);c.closePath();c.fill();c.stroke();
-  c.fillStyle='#ffcf75';c.beginPath();c.moveTo(-49,1);c.lineTo(43,0);c.lineTo(34,7);c.lineTo(-44,5);c.fill();c.fillStyle='#193f48';c.beginPath();c.moveTo(-11,-13);c.lineTo(-4,-30);c.lineTo(16,-29);c.lineTo(29,-12);c.closePath();c.fill();c.strokeStyle='#a3d3c5';c.lineWidth=2;c.beginPath();c.moveTo(4,-27);c.lineTo(5,-13);c.moveTo(16,-26);c.lineTo(24,-15);c.stroke();
+  const body=c.createLinearGradient(0,-27,0,14);body.addColorStop(0,'#f7c46a');body.addColorStop(.55,'#e09a37');body.addColorStop(1,'#c67f2a');c.fillStyle=body;c.strokeStyle='#173f46';c.lineWidth=2;c.beginPath();c.moveTo(-62,1);c.lineTo(-67,-27);c.lineTo(-55,-27);c.lineTo(-38,-7);c.lineTo(24,-14);c.quadraticCurveTo(48,-12,51,0);c.quadraticCurveTo(46,14,22,14);c.lineTo(-49,5);c.closePath();c.fill();c.stroke();
+  c.fillStyle='rgba(120,70,10,.25)';c.beginPath();c.moveTo(-49,3);c.lineTo(43,8);c.lineTo(22,14);c.closePath();c.fill();
+  c.fillStyle='#ffcf75';c.beginPath();c.moveTo(-49,1);c.lineTo(43,0);c.lineTo(34,7);c.lineTo(-44,5);c.fill();const glass=c.createLinearGradient(0,-30,0,-12);glass.addColorStop(0,'#2a5a63');glass.addColorStop(1,'#122e35');c.fillStyle=glass;c.beginPath();c.moveTo(-11,-13);c.lineTo(-4,-30);c.lineTo(16,-29);c.lineTo(29,-12);c.closePath();c.fill();c.strokeStyle='#a3d3c5';c.lineWidth=2;c.beginPath();c.moveTo(4,-27);c.lineTo(5,-13);c.moveTo(16,-26);c.lineTo(24,-15);c.stroke();
+  c.strokeStyle='rgba(255,255,255,.4)';c.lineWidth=3;c.beginPath();c.moveTo(-6,-28);c.lineTo(10,-14);c.stroke();c.fillStyle='rgba(255,255,255,.6)';c.beginPath();c.arc(11,-26,1.5,0,7);c.fill();
   c.strokeStyle='#284d4c';c.lineWidth=2;c.beginPath();c.moveTo(16,9);c.lineTo(-17,-32);c.moveTo(16,9);c.lineTo(34,-32);c.stroke();
-  c.fillStyle='#f6bc5d';c.beginPath();c.moveTo(-36,-34);c.lineTo(36,-35);c.lineTo(45,-29);c.lineTo(-41,-26);c.closePath();c.fill();c.stroke();c.fillStyle='#ffe1a1';c.fillRect(-33,-34,65,3);
+  const wing=c.createLinearGradient(0,-35,0,-26);wing.addColorStop(0,'#f9d07c');wing.addColorStop(1,'#eda93f');c.fillStyle=wing;c.beginPath();c.moveTo(-36,-34);c.lineTo(36,-35);c.lineTo(45,-29);c.lineTo(-41,-26);c.closePath();c.fill();c.stroke();c.fillStyle='rgba(255,235,185,.95)';c.fillRect(-33,-34,65,3);
   c.fillStyle='#173f46';c.font='bold 9px monospace';c.fillText('RR–07',-39,0);
   c.fillStyle='#eab05b';c.beginPath();c.moveTo(-56,0);c.lineTo(-76,7);c.lineTo(-44,8);c.lineTo(-38,3);c.fill();
   c.fillStyle='#244c50';c.fillRect(47,-9,7,19);
   // Open blade strokes stay attached to the hub; no closed loop resembling a glyph.
   c.fillRect(52,-2,6,4);c.strokeStyle='#fff3c933';c.lineWidth=5;c.beginPath();c.moveTo(57,-25);c.lineTo(57,25);c.stroke();
-  const blade=16+10*Math.abs(Math.sin(t*48));c.strokeStyle='#fff3c9bb';c.lineWidth=2;c.beginPath();c.moveTo(55,-blade);c.lineTo(59,blade);c.stroke();
+  const blade=16+10*Math.abs(Math.sin(t*48));c.fillStyle='rgba(255,243,201,.16)';c.beginPath();c.moveTo(55,-blade);c.quadraticCurveTo(60,-blade,60,-blade+5);c.lineTo(60,blade-5);c.quadraticCurveTo(60,blade,55,blade);c.quadraticCurveTo(50,blade,50,blade-5);c.lineTo(50,-blade+5);c.quadraticCurveTo(50,-blade,55,-blade);c.fill();c.strokeStyle='rgba(255,243,201,.5)';c.lineWidth=2;c.beginPath();c.moveTo(55,-blade);c.lineTo(59,blade);c.stroke();
+  if(this.boosting)for(let i=0;i<3;i++){const x=-70-i*12.5,r=6+i*3,g=c.createRadialGradient(x,4,0,x,4,r);g.addColorStop(0,'rgba(224,214,182,.28)');g.addColorStop(1,'rgba(224,214,182,0)');c.fillStyle=g;c.fillRect(x-r,4-r,r*2,r*2);}
   c.shadowBlur=9;c.shadowColor='#f26656';c.fillStyle='#fc8067';c.beginPath();c.arc(-38,-28,3,0,7);c.fill();c.shadowColor='#c4f6c0';c.fillStyle='#d4f5ba';c.beginPath();c.arc(40,-30,2.5,0,7);c.fill();c.restore();
  }
 };

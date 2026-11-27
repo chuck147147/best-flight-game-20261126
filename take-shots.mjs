@@ -6,11 +6,22 @@ import { dirname, join } from 'node:path';
 const here = dirname(fileURLToPath(import.meta.url));
 await mkdir(join(here, 'candidates'), { recursive: true });
 const browser = await chromium.launch({ executablePath: '/home/hatch/.cache/ms-playwright/chromium-1255/chrome-linux64/chrome', args: ['--no-sandbox'] });
-const shots = ['cover', 'canyon', 'takeoff', 'storm', 'landing', 'chase', 'chase-low', 'chase-storm'].map((name, i) => [`${i+1}-${name}.png`, name]);
-for (const [file, shot] of shots) {
+const shots = [
+  ['1-cover-a.png', 'chase', 7],
+  ['1-cover-b.png', 'chase-b', 7],
+  ['2-river-a.png', 'chase-low', 7],
+  ['2-river-b.png', 'chase-low-b', 7],
+  ['3-storm-a.png', 'chase-storm', 7],
+  ['3-storm-b.png', 'chase-storm-b', 7],
+  ['4-canyon-a.png', 'canyon', 7],
+  ['4-canyon-b.png', 'canyon', 12],
+  ['5-takeoff.png', 'takeoff', 7],
+  ['6-landing.png', 'landing', 7],
+];
+for (const [file, shot, seed] of shots) {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
   page.on('pageerror', error => { throw error; });
-  await page.goto('file://' + join(here, 'game/index.html') + `?shot=${shot}&seed=7`);
+  await page.goto('file://' + join(here, 'game/index.html') + `?shot=${shot}&seed=${seed}`);
   await page.waitForTimeout(1500);
   await page.screenshot({ path: join(here, 'candidates', file) });
   await page.close();
