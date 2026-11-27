@@ -16,6 +16,7 @@ RR.World=class{
   const c=ctx,sy=y=>560-(y-cam.y),sx=x=>x-cam.x;
   const hash=n=>{const h=Math.sin((n+this.seed)*127.1)*43758.5453;return h-Math.floor(h);};
   const storm=this.mission===2,sunX=1020-cam.x*.018;
+  if(RR.art.ready('canyon')){RR.art.drawCanyon(c,cam.x,storm);}else{
   const sky=c.createLinearGradient(0,0,0,660);for(const [p,color] of [[0,storm?'#344752':'#6ea7ab'],[.45,storm?'#657e7d':'#a9c9b2'],[.78,storm?'#a0b0a6':'#f3cf9c'],[1,storm?'#c5cdca':'#ffedb9']])sky.addColorStop(p,color);c.fillStyle=sky;c.fillRect(0,0,1280,800);
   for(const [r,a] of [[200,storm?.12:.5],[115,storm?.08:.55]]){const g=c.createRadialGradient(sunX,153,0,sunX,153,r),rgb=storm?'200,214,208':'255,227,160';g.addColorStop(0,`rgba(${rgb},${a})`);g.addColorStop(1,`rgba(${rgb},0)`);c.fillStyle=g;c.fillRect(sunX-r,153-r,r*2,r*2);}
   const sun=c.createLinearGradient(0,108,0,198);sun.addColorStop(0,'#fff3c4');sun.addColorStop(1,'#ffd98c');c.fillStyle=storm?'rgba(216,223,216,.16)':sun;c.beginPath();c.arc(sunX,153,storm?69:45,0,Math.PI*2);c.fill();
@@ -39,6 +40,7 @@ RR.World=class{
   for(let x=0;x<1280;x+=8){const y=550+Math.sin((x+cam.x*.55)*.006)*27,g=c.createLinearGradient(0,y,0,y+12);g.addColorStop(0,'rgba(20,50,50,.18)');g.addColorStop(1,'rgba(20,50,50,0)');c.fillStyle=g;c.fillRect(x,y,8,12);}
   c.strokeStyle='#d7dfb17d';c.lineWidth=2;for(let i=0;i<24;i++){let x=((i*111-cam.x*.6+t*12)%1400+1400)%1400;c.beginPath();c.moveTo(x,585+(i%4)*19);c.lineTo(x+37,585+(i%4)*19);c.stroke();}
   for(let n=0;n<220;n++){const wx=(Math.floor(cam.x*.55/8)+n)*8,x=wx-cam.x*.55,y=560+Math.sin(wx*.006)*27+hash(n+23)*10,size=1+hash(n+71)*1.5;c.fillStyle=`rgba(${n%2?'255,246,214':'255,205,120'},${.3+hash(wx)*.6})`;c.fillRect(x,y,size,size*.65);}
+  }
   // Solid ground is sampled from exactly the same height function as collisions.
   const soil=c.createLinearGradient(0,350,0,800);soil.addColorStop(0,'#1e5c5e');soil.addColorStop(1,'#0c3036');c.fillStyle=soil;c.beginPath();c.moveTo(-20,800);for(let x=-20;x<=1300;x+=10)c.lineTo(x,sy(this.ground(x+cam.x)));c.lineTo(1300,800);c.fill();
   for(let i=Math.floor(cam.x/37)-1;i<(cam.x+1300)/37;i++){const hash=Math.sin(i*127.1)*43758.5453,f=hash-Math.floor(hash),wx=i*37,x=sx(wx),y=sy(this.ground(wx)),len=8+f*18,offset=6+f*64;c.strokeStyle=i%2?'rgba(255,240,200,.09)':'rgba(0,0,0,.18)';c.lineWidth=2+f;c.beginPath();c.moveTo(x,y+offset);c.lineTo(x+len,y+offset+(sy(this.ground(wx+10))-y)*len/10);c.stroke();}

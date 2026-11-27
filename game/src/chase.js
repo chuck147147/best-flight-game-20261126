@@ -92,6 +92,10 @@ RR.Chase=class{
  }
  drawChasePlane(c){
   const ground=this.projectPoint(this.lateral,0,this.z+30),fade=Math.max(0,1-this.altitude/400);c.save();c.translate(ground.x,ground.y);c.scale(80*fade+10,12*fade+2);const shadow=c.createRadialGradient(0,0,0,0,0,1);shadow.addColorStop(0,`rgba(8,30,34,${.30*fade})`);shadow.addColorStop(1,'rgba(8,30,34,0)');c.fillStyle=shadow;c.beginPath();c.ellipse(0,0,1,1,0,0,7);c.fill();c.restore();
+  if(RR.art.ready('planeRear')){
+   c.save();c.translate(640+this.bank*22,480+this.pitch*28);c.rotate(this.bank);const planeScale=1+Math.max(0,100-this.altitude)*.0015;c.scale(planeScale,planeScale);c.drawImage(RR.art.planeRear,-440*.5,-351*.52,440,351);
+   for(const [x,color] of [[-173,'#d9826d'],[173,'#b9d6ac']]){c.fillStyle=color;c.shadowColor=color;c.shadowBlur=10;c.beginPath();c.arc(x*440/350,-25*440/350,3,0,7);c.fill();}c.restore();return;
+  }
   c.save();c.translate(640+this.bank*22,480+this.pitch*28);c.rotate(this.bank);const planeScale=1+Math.max(0,100-this.altitude)*.0015;c.scale(planeScale,planeScale);const poly=(p,color)=>{this.polygon(c,p.map(([x,y])=>({x,y})),color);c.strokeStyle='#183b40';c.lineWidth=.8;c.stroke();};const body=c.createLinearGradient(0,-54,0,65);body.addColorStop(0,'#eee4c4');body.addColorStop(.45,'#e9bc73');body.addColorStop(1,'#b98e53');
   c.strokeStyle='#dce5cc18';c.lineWidth=5;c.beginPath();c.moveTo(10,-36);c.bezierCurveTo(30,-10,15,40,28,80);c.stroke();
   const prop=c.createRadialGradient(0,-62,0,0,-62,47);for(const [p,a] of [[0,.052],[.55,.104],[.85,.169],[1,0]])prop.addColorStop(p,`rgba(242,232,205,${a})`);c.fillStyle=prop;c.beginPath();c.arc(0,-62,47,0,7);c.fill();
@@ -115,7 +119,7 @@ RR.Chase=class{
   for(const [x,color] of [[-173,'#d9826d'],[173,'#b9d6ac']]){c.fillStyle=color;c.shadowColor=color;c.shadowBlur=10;c.beginPath();c.arc(x,-25,3,0,7);c.fill();}c.restore();
  }
  drawWeather(c){if(this.mission===2){for(let i=0;i<3;i++)RR.fx.cloud(c,180+i*460,100+i%2*45,520,145,'dark',.4,i+30);c.strokeStyle='#cfdbd35c';c.lineWidth=1;for(let n=0;n<190;n++){const x=((n*173-this.time*260)%1340+1340)%1340,y=(n*79+this.time*390)%670;c.beginPath();c.moveTo(x,y);c.lineTo(x-22,y+34);c.stroke();}}if(this.boosting&&this.altitude<100){c.strokeStyle='#ddd7ae33';for(let n=0;n<12;n++){let x=n*117;c.beginPath();c.moveTo(x,580);c.lineTo(x+(x-640)*.08,620);c.stroke();}}}
- draw(c,g){this.time=g.time;c.save();c.beginPath();c.rect(0,74,1280,579);c.clip();if(g.shake)c.translate(Math.sin(g.time*95)*g.shake,Math.cos(g.time*77)*g.shake*.5);if(this.mission===2)c.translate(Math.sin(g.time*19)*1.4,Math.cos(g.time*23));this.drawSky(c);this.drawFarMountains(c);this.drawValleyFloor(c);if(this.mission===2){c.fillStyle='#142c3838';c.fillRect(0,74,1280,579);}this.drawRunways(c);this.drawRingsAhead(c);this.drawChasePlane(c);this.drawWeather(c);c.restore();
+ draw(c,g){this.time=g.time;c.save();c.beginPath();c.rect(0,74,1280,579);c.clip();if(g.shake)c.translate(Math.sin(g.time*95)*g.shake,Math.cos(g.time*77)*g.shake*.5);if(this.mission===2)c.translate(Math.sin(g.time*19)*1.4,Math.cos(g.time*23));if(RR.art.ready(this.mission===2?'storm':'chase')){RR.art.drawChase(c,{storm:this.mission===2,low:this.altitude<90,lateral:this.lateral,bank:this.bank,pitch:this.pitch,speed:this.speed,altitude:this.altitude});}else{this.drawSky(c);this.drawFarMountains(c);this.drawValleyFloor(c);}if(this.mission===2){c.fillStyle='#142c3838';c.fillRect(0,74,1280,579);}this.drawRunways(c);this.drawRingsAhead(c);this.drawChasePlane(c);this.drawWeather(c);c.restore();
   RR.fx.finish(c,{sunX:950,sunY:242,storm:this.mission===2});
   Object.assign(this.planeFacade,{x:this.z,y:this.altitude,vx:this.speed,pitch:this.pitch,grounded:this.grounded,throttle:this.throttle,fuel:this.fuel,hp:this.hp,boost:this.boost,stall:this.stall});const plane=g.plane,world=g.world;try{g.plane=this.planeFacade;g.world=this.worldFacade;RR.ui.draw(c,g);}finally{g.plane=plane;g.world=world;}
 

@@ -34,6 +34,11 @@ RR.Plane=class{
   if(!this.grounded){const ground=this.world.ground(this.x),fade=Math.max(0,1-Math.max(0,this.y-ground)/500);c.save();c.translate(x,560-(ground-cam.y));c.scale(58*fade+8,7);const shadow=c.createRadialGradient(0,0,0,0,0,1);shadow.addColorStop(0,`rgba(10,34,39,${.22*fade})`);shadow.addColorStop(1,'rgba(10,34,39,0)');c.fillStyle=shadow;c.beginPath();c.ellipse(0,0,1,1,0,0,Math.PI*2);c.fill();c.restore();}
   c.save();c.strokeStyle=this.boosting?'#ffdb8c88':'#fff1c322';c.lineWidth=this.boosting?4:2;c.beginPath();this.trail.forEach(p=>c.lineTo(p.x-cam.x,560-(p.y-cam.y)));c.stroke();c.translate(x,y);c.rotate(-this.pitch);
   if(this.invincible>0&&Math.floor(t*12)%2)c.globalAlpha=.65;
+  if(RR.art.ready('planeSide')){
+   c.drawImage(RR.art.planeSide,-300*.48,-130*.76,300,130);
+   if(this.boosting)for(let i=0;i<3;i++){const x=-150-i*12.5,r=6+i*3,g=c.createRadialGradient(x,4,0,x,4,r);g.addColorStop(0,'rgba(224,214,182,.28)');g.addColorStop(1,'rgba(224,214,182,0)');c.fillStyle=g;c.fillRect(x-r,4-r,r*2,r*2);}
+   c.shadowBlur=9;c.shadowColor='#f26656';c.fillStyle='#fc8067';c.beginPath();c.arc(-128,-52,3,0,7);c.fill();c.shadowColor='#c4f6c0';c.fillStyle='#d4f5ba';c.beginPath();c.arc(128,-52,2.5,0,7);c.fill();c.restore();return;
+  }
   // Landing gear, wing struts, and a high wing with visible underside.
   c.strokeStyle='#173f46';c.lineWidth=4;c.beginPath();c.moveTo(-10,8);c.lineTo(-6,26);c.moveTo(19,5);c.lineTo(11,27);c.stroke();
   c.fillStyle='#143b42';for(const wx of [-6,12]){c.beginPath();c.arc(wx,25,7,0,7);c.fill();c.fillStyle='#9bb4a5';c.beginPath();c.arc(wx,25,2,0,7);c.fill();c.fillStyle='#143b42';}
