@@ -3,7 +3,7 @@
  try{
   if(typeof Image==='undefined'||typeof document==='undefined'||typeof document.createElement!=='function'){RR.art={ready:()=>false,failed:true};return;}
   const assets=Object.create(null),failed=Object.create(null);
-  const art=RR.art={failed:false,ready:name=>!failed[name]&&!!assets[name],drawChase,drawCanyon};
+  const art=RR.art={failed:false,ready:name=>!failed[name]&&!!assets[name],img:name=>assets[name],drawChase,drawCanyon};
   function canvas(w,h){const a=document.createElement('canvas');a.width=w;a.height=h;return a;}
   function key(img){
    const w=img.naturalWidth,h=img.naturalHeight,a=canvas(w,h),c=a.getContext('2d');c.drawImage(img,0,0);

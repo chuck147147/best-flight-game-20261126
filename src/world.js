@@ -42,10 +42,20 @@ RR.World=class{
   for(let n=0;n<220;n++){const wx=(Math.floor(cam.x*.55/8)+n)*8,x=wx-cam.x*.55,y=560+Math.sin(wx*.006)*27+hash(n+23)*10,size=1+hash(n+71)*1.5;c.fillStyle=`rgba(${n%2?'255,246,214':'255,205,120'},${.3+hash(wx)*.6})`;c.fillRect(x,y,size,size*.65);}
   }
   // Solid ground is sampled from exactly the same height function as collisions.
-  const soil=c.createLinearGradient(0,350,0,800);soil.addColorStop(0,'#1e5c5e');soil.addColorStop(1,'#0c3036');c.fillStyle=soil;c.beginPath();c.moveTo(-20,800);for(let x=-20;x<=1300;x+=10)c.lineTo(x,sy(this.ground(x+cam.x)));c.lineTo(1300,800);c.fill();
+  const groundPath=closed=>{c.beginPath();if(closed)c.moveTo(-20,800);for(let x=-20;x<=1300;x+=10){const y=sy(this.ground(x+cam.x));if(!closed&&x===-20)c.moveTo(x,y);else c.lineTo(x,y);}if(closed){c.lineTo(1300,800);c.closePath();}};
+  const soil=c.createLinearGradient(0,350,0,800);soil.addColorStop(0,'#1e5c5e');soil.addColorStop(1,'#0c3036');c.fillStyle=soil;groundPath(true);c.fill();
+  if(RR.art.ready('canyon')){const img=RR.art.img('canyon');if(img){
+   c.save();groundPath(true);c.clip();
+   const flipped=RR.art.img('canyonFlipped'),TW=1000;let tile=Math.floor(cam.x/TW)-1;
+   for(let dx=-(cam.x%TW)-TW;dx<1280;dx+=TW,tile++)c.drawImage(tile%2&&flipped?flipped:img,0,.52*img.naturalHeight,img.naturalWidth,.48*img.naturalHeight,dx,170,TW,630);
+   const tint=c.createLinearGradient(0,300,0,800);tint.addColorStop(0,'rgba(30,92,94,.38)');tint.addColorStop(.5,'rgba(20,70,72,.30)');tint.addColorStop(1,'rgba(12,48,54,.55)');c.fillStyle=tint;groundPath(true);c.fill();
+   c.restore();
+  }}
   for(let i=Math.floor(cam.x/37)-1;i<(cam.x+1300)/37;i++){const hash=Math.sin(i*127.1)*43758.5453,f=hash-Math.floor(hash),wx=i*37,x=sx(wx),y=sy(this.ground(wx)),len=8+f*18,offset=6+f*64;c.strokeStyle=i%2?'rgba(255,240,200,.09)':'rgba(0,0,0,.18)';c.lineWidth=2+f;c.beginPath();c.moveTo(x,y+offset);c.lineTo(x+len,y+offset+(sy(this.ground(wx+10))-y)*len/10);c.stroke();}
   c.strokeStyle='rgba(4,20,22,.16)';c.lineWidth=10;c.beginPath();for(let x=-20;x<=1300;x+=10)c.lineTo(x,sy(this.ground(x+cam.x))+14);c.stroke();
-  c.strokeStyle='#70a28c';c.lineWidth=5;c.beginPath();for(let x=-20;x<=1300;x+=10)c.lineTo(x,sy(this.ground(x+cam.x)));c.stroke();
+  c.strokeStyle='rgba(196,224,210,.10)';c.lineWidth=24;groundPath(false);c.stroke();
+  c.strokeStyle='rgba(196,224,210,.13)';c.lineWidth=10;groundPath(false);c.stroke();
+  c.strokeStyle='rgba(6,28,32,.92)';c.lineWidth=3;groundPath(false);c.stroke();
   for(let i=Math.floor(cam.x/73)-1;i<(cam.x+1300)/73;i++){const wx=i*73+Math.sin(i*2)*19;if(this.runway(wx)||this.runways.some(r=>Math.abs(wx-r.x)<65))continue;let x=sx(wx),y=sy(this.ground(wx)),h=23+(Math.sin(i*7)+1)*15;if(RR.fx.shade)c.drawImage(RR.fx.shade,x-32,y-12,64,22);for(let k=0;k<1+Math.floor(hash(i)*3);k++){const cx=wx+(k%2?-1:1)*(12+hash(i*7+k)*15);if(this.runway(cx))continue;const qx=sx(cx),qy=sy(this.ground(cx)),qh=h*(.45+hash(i*31+k)*.3);c.fillStyle=k%2?'#1d4a44':'#265449';c.beginPath();c.moveTo(qx,qy-qh-8);c.lineTo(qx-qh*.3,qy-3);c.lineTo(qx+qh*.3,qy-3);c.fill();}c.save();c.globalAlpha=.85;c.fillStyle='#2f7263';c.beginPath();c.moveTo(x+3,y-h-16);c.lineTo(x-10,y-8);c.lineTo(x+16,y-8);c.fill();c.restore();c.fillStyle=i%3===0?'#103e46':'#225d5c';c.fillRect(x-2,y-h,4,h);c.beginPath();c.moveTo(x,y-h-15);c.lineTo(x-13,y-7);c.lineTo(x+13,y-7);c.fill();}
   // Geological seams make the low canyon read as rock rather than a flat floor.
   c.strokeStyle='#38736d66';c.lineWidth=2;for(let j=0;j<3;j++){c.beginPath();for(let x=0;x<=1280;x+=20)c.lineTo(x,sy(this.ground(x+cam.x))+55+j*43+Math.sin(x*.014+j)*10);c.stroke();}
