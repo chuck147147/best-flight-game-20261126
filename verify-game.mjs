@@ -13,6 +13,7 @@ vm.createContext(context);
 for(const name of ['audio','input','fx','art','world','plane','hud','chase','shots','main'])vm.runInContext(readFileSync(`game/src/${name}.js`,'utf8'),context,{filename:name+'.js'});
 const {RR}=context;
 const g=RR.game;
+g.mode='side'; // Players now start in chase view; this suite exercises side-view physics, so pin the view.
 const step=(n=1)=>{for(let i=0;i<n;i++)g.update(1/60);};
 const press=(...keys)=>{RR.input.keys=new Set(keys);};
 for(let mission=0;mission<3;mission++){
@@ -23,11 +24,11 @@ for(let mission=0;mission<3;mission++){
 }
 g.start(0);
 for(const r of g.world.rings)assert.ok(r.y-r.r-g.world.ground(r.x)>20,'ring clears terrain');
-let r=g.world.rings[0];Object.assign(g.plane,{x:r.x-1,y:r.y,vx:100,grounded:false});press();step();assert.equal(g.rings,1);assert.equal(g.score,200);step();assert.equal(g.score,200,'no repeat ring reward');
+let r=g.world.rings[0];Object.assign(g.plane,{x:r.x-1,y:r.y,vx:100,grounded:false});press();step();assert.equal(g.rings,1);assert.equal(g.score,300);step();assert.equal(g.score,300,'no repeat ring reward');
 g.start(1);let strip=g.world.runways[1];Object.assign(g.plane,{x:strip.x+200,y:strip.h+15.1,vx:90,vy:-12,pitch:0,grounded:false});step();assert.equal(g.state,'win','rescue landing completes');
 g.start(2);strip=g.world.runways[1];Object.assign(g.plane,{x:strip.x+200,y:strip.h+15.1,vx:90,vy:-12,pitch:0,grounded:false});step();assert.equal(g.state,'win','delivery landing completes');
 g.start(0);Object.assign(g.plane,{x:900,y:g.world.ground(900)+15.1,vx:170,vy:-65,grounded:false});step();assert.ok(g.plane.hp<100,'terrain damage');let hp=g.plane.hp;g.plane.damage(50,g);assert.equal(g.plane.hp,hp,'hit cooldown');
-g.start(0);g.rings=8;strip=g.world.runways[1];Object.assign(g.plane,{x:strip.x+200,y:strip.h+15.1,vx:90,vy:-12,pitch:0,grounded:false});step();assert.equal(g.state,'win','ring route landing completes');
+g.start(0);g.rings=g.world.rings.length;strip=g.world.runways[1];Object.assign(g.plane,{x:strip.x+200,y:strip.h+15.1,vx:90,vy:-12,pitch:0,grounded:false});step();assert.equal(g.state,'win','ring route landing completes');
 g.start(0);strip=g.world.runways[1];Object.assign(g.plane,{x:strip.x+200,y:strip.h+15.1,vx:90,vy:-12,pitch:0,grounded:false});step();assert.equal(g.state,'over','missing rings cannot complete');
 g.start(0);let balloon=g.world.balloons[0];Object.assign(g.plane,{x:balloon.x,y:balloon.y+Math.sin(balloon.x)*12,vx:100,grounded:false});step();assert.ok(g.plane.hp<100,'balloon damage');
 g.start(0);Object.assign(g.plane,{fuel:40,hp:40});step(60);assert.ok(g.plane.fuel>40&&g.plane.hp>40,'strip servicing');

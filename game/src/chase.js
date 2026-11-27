@@ -1,8 +1,8 @@
 /* Perspective valley flight. Metres in world space, a trailing camera in screen space. */
 RR.Chase=class{
  constructor(spec,mission){
-  this.spec=spec;this.mission=mission;this.end=spec.length;this.z=125;this.lateral=0;this.altitude=8;this.speed=0;this.throttle=.18;this.fuel=spec.fuel;this.hp=100;this.boost=100;this.bank=0;this.pitch=0;this.sink=0;this.grounded=true;this.stall=false;this.invincible=0;this.time=0;
-  this.rings=Array.from({length:8},(_,i)=>({x:950+i*700,lateral:[-95,130,-150,75,-120,90,-145,125][i],y:[100,260,155,280,85,180,270,105][i],r:62,hit:false}));
+  this.spec=spec;this.mission=mission;this.end=spec.length;this.z=125;this.lateral=0;this.altitude=8;this.speed=0;this.throttle=.18;this.fuel=spec.fuel;this.hp=100;this.boost=100;this.bank=0;this.bankVel=0;this.boostVis=0;this.pitch=0;this.sink=0;this.grounded=true;this.stall=false;this.invincible=0;this.time=0;
+  this.rings=Array.from({length:12},(_,i)=>({x:1000+i*1500,lateral:[-95,130,-150,75,-120,90,-145,125,60,-170,140,-80][i],y:[100,260,155,280,85,180,270,105,230,120,295,170][i],r:62,hit:false,miss:false}));
   this.runways=[{x:0,w:600,id:0,name:'ALDER FIELD',fieldElevationFt:410},{x:this.end-600,w:750,id:1,name:mission===1?'HIKER’S REST':'HIGH PASS STRIP',fieldElevationFt:410}];
   this.planeFacade={};this.worldFacade={spec,mission,end:this.end,rings:this.rings,runways:this.runways,ground:()=>0,runway:x=>this.runwayAt(x),mslFeet:y=>410+y*3.28,wind:(x,t)=>this.hudWindAt(x,t)};
  }
@@ -10,26 +10,26 @@ RR.Chase=class{
  // Report prevailing wind plus gusts; instantaneous crosswind can pass through zero.
  hudWindAt(z,t){return this.spec.wind*(.52+Math.sin(t*.8+z*.001)*.12+Math.sin(t*2.7)*.08);}
  windAt(z,t){return Math.sin(t*.8+z*.001)*this.spec.wind+Math.sin(t*2.7)*this.spec.wind*.35;}
- damage(amount,g){if(this.invincible>0)return;this.hp=Math.max(0,this.hp-amount);this.invincible=1.6;g.shake=10;g.message='HARD HIT · CHECK AIRFRAME';g.messageTime=2.5;RR.audio.hit();}
+ damage(amount,g){if(this.invincible>0)return;this.hp=Math.max(0,this.hp-amount);this.invincible=1.6;g.combo=0;g.shake=10;g.message='HARD HIT · CHECK AIRFRAME';g.messageTime=2.5;RR.audio.hit();}
  update(dt,g){
   const i=RR.input,steer=Number(i.held('d'))-Number(i.held('a')),climb=Number(i.held('arrowup'))-Number(i.held('arrowdown'));this.time=g.time;
   const powerInput=Number(i.held('w'))-Number(i.held('s'));
   this.throttle=Math.max(0,Math.min(1,this.throttle+powerInput*dt*.35));
   if(i.drag)this.throttle=Math.max(0,Math.min(1,(770-i.pointer.y)/84));
   if(!this.fuel)this.throttle=0;
-  this.boosting=i.held(' ')&&this.boost>0&&this.fuel>0&&!this.grounded;this.boost=Math.max(0,Math.min(100,this.boost+(this.boosting?-42:12)*dt));this.fuel=Math.max(0,this.fuel-dt*(.12+this.throttle*.4+(this.boosting?.6:0)));
-  this.bank+=(steer*.48-this.bank)*Math.min(1,dt*4);this.pitch+=(climb*.38-this.pitch)*Math.min(1,dt*3);
+  this.boosting=i.held(' ')&&this.boost>0&&this.fuel>0&&!this.grounded;this.boost=Math.max(0,Math.min(100,this.boost+(this.boosting?-42:12)*dt));this.fuel=Math.max(0,this.fuel-dt*(.12+this.throttle*.4+(this.boosting?.6:0)));this.boostVis+=((this.boosting?1:0)-this.boostVis)*Math.min(1,dt*(this.boosting?6:2.5));
+  const bankTarget=steer*.48;this.bankVel+=((bankTarget-this.bank)*70-this.bankVel*12)*dt;this.bank=Math.max(-.62,Math.min(.62,this.bank+this.bankVel*dt));this.pitch+=(climb*.38-this.pitch)*Math.min(1,dt*3);
   this.speed=Math.max(0,this.speed+dt*(this.throttle*49+(this.boosting?65:0)-this.speed*.19-Math.abs(this.pitch)*10));
   const previousZ=this.z;this.z+=this.speed*dt;this.invincible=Math.max(0,this.invincible-dt);
   this.stall=!this.grounded&&this.speed<58;
-  const gust=this.windAt(this.z,g.time);this.lateral+=(this.bank*this.speed*.8+(this.grounded?0:gust*.2))*dt;
+  const gust=this.windAt(this.z,g.time);this.lateral+=(this.bank*this.speed*.8+(this.grounded?0:gust*(this.mission===2?.3:.2)))*dt;
   if(this.grounded){this.altitude=8;this.sink=0;if(this.speed>72&&climb>0){this.grounded=false;this.sink=10;}else if(!this.runwayAt(this.z))this.grounded=false;if(this.throttle<.32)this.speed=Math.max(0,this.speed-35*dt);}
   else{let desired=climb*this.speed*.36+(this.speed-110)*.035+(this.mission===2?gust*.13:0)-(this.stall?45:0);this.sink+=(desired-this.sink)*Math.min(1,dt*2);this.altitude+=this.sink*dt;
-   if(this.altitude<=8){const strip=this.runwayAt(this.z);if(strip&&Math.abs(this.sink)<20&&this.speed<150&&Math.abs(this.bank)<.2&&Math.abs(this.pitch)<.24){this.grounded=true;this.altitude=8;this.sink=0;g.score+=350;g.message='CLEAN TOUCHDOWN  +350';g.messageTime=4;RR.audio.ring();if(strip.id===1){if(this.mission!==0||g.rings===8)g.finish(true);else g.finish(false,'You missed a ring. Follow the golden trail.');}}else{this.damage(32+Math.abs(this.sink)*.65,g);this.altitude=16;this.sink=30;this.speed*=.7;}}
+   if(this.altitude<=8){const strip=this.runwayAt(this.z);if(strip&&Math.abs(this.sink)<20&&this.speed<150&&Math.abs(this.bank)<.2&&Math.abs(this.pitch)<.24){this.grounded=true;this.altitude=8;this.sink=0;g.score+=350;g.message='CLEAN TOUCHDOWN  +350';g.messageTime=4;RR.audio.ring();if(strip.id===1){if(this.mission!==0||g.rings===this.rings.length)g.finish(true);else g.finish(false,'You missed a ring. Follow the golden trail.');}}else{this.damage(32+Math.abs(this.sink)*.65,g);this.altitude=16;this.sink=30;this.speed*=.7;}}
   }
   if(Math.abs(this.lateral)>470&&this.altitude<310){this.damage(28,g);this.lateral=Math.sign(this.lateral)*465;this.bank*=-.5;}
   if(this.altitude>650){this.altitude=650;this.sink=Math.min(0,this.sink);}
-  for(const r of this.rings)if(!r.hit&&previousZ<=r.x&&this.z>=r.x&&Math.hypot(this.lateral-r.lateral,this.altitude-r.y)<r.r-8){r.hit=true;g.rings++;g.score+=200;g.message=`RING ${g.rings} / 8  +200`;g.messageTime=2;RR.audio.ring();}
+  for(const r of this.rings){if(!r.hit&&!r.miss&&this.z>r.x+40){r.miss=true;g.combo=0;}if(!r.hit&&previousZ<=r.x&&this.z>=r.x){const d=Math.hypot(this.lateral-r.lateral,this.altitude-r.y);if(d<=r.r){r.hit=true;g.rings++;g.combo=(g.combo||0)+1;const perfect=d<=r.r*.45,points=(perfect?300:200)+50*(g.combo-1);g.score+=points;g.message=`RING ${g.rings} / ${this.rings.length}  +${points}${perfect?'  PERFECT':''}`;g.messageTime=2;RR.audio.ring();g.floaters.push({text:`+${points}`,label:perfect?(g.combo>1?`PERFECT · COMBO ×${g.combo}`:'PERFECT'):(g.combo>1?`COMBO ×${g.combo}`:'RING'),t:0,life:1.5});}}}
   if(this.hp<=0)g.finish(false,'The canyon won this round. Give the ridge more room.');
   if(this.z>this.end+450)g.finish(false,'Strip missed. Slow down and descend earlier.');
   if(!this.fuel&&this.speed<25)g.finish(false,'Out of fuel. Use a steady cruise throttle.');
@@ -118,8 +118,8 @@ RR.Chase=class{
   c.save();c.translate(-1,30);c.rotate(-Math.PI/2);c.fillStyle='#35504b';c.font='bold 9px monospace';c.fillText('RR-07',-17,0);c.restore();
   for(const [x,color] of [[-173,'#d9826d'],[173,'#b9d6ac']]){c.fillStyle=color;c.shadowColor=color;c.shadowBlur=10;c.beginPath();c.arc(x,-25,3,0,7);c.fill();}c.restore();
  }
- drawWeather(c){if(this.mission===2){for(let i=0;i<3;i++)RR.fx.cloud(c,180+i*460,100+i%2*45,520,145,'dark',.4,i+30);c.strokeStyle='#cfdbd35c';c.lineWidth=1;for(let n=0;n<190;n++){const x=((n*173-this.time*260)%1340+1340)%1340,y=(n*79+this.time*390)%670;c.beginPath();c.moveTo(x,y);c.lineTo(x-22,y+34);c.stroke();}}if(this.boosting&&this.altitude<100){c.strokeStyle='#ddd7ae33';for(let n=0;n<12;n++){let x=n*117;c.beginPath();c.moveTo(x,580);c.lineTo(x+(x-640)*.08,620);c.stroke();}}}
- draw(c,g){this.time=g.time;c.save();c.beginPath();c.rect(0,74,1280,579);c.clip();if(g.shake)c.translate(Math.sin(g.time*95)*g.shake,Math.cos(g.time*77)*g.shake*.5);if(this.mission===2)c.translate(Math.sin(g.time*19)*1.4,Math.cos(g.time*23));if(RR.art.ready(this.mission===2?'storm':'chase')){RR.art.drawChase(c,{storm:this.mission===2,low:this.altitude<90,lateral:this.lateral,bank:this.bank,pitch:this.pitch,speed:this.speed,altitude:this.altitude});}else{this.drawSky(c);this.drawFarMountains(c);this.drawValleyFloor(c);}if(this.mission===2){c.fillStyle='#142c3838';c.fillRect(0,74,1280,579);}this.drawRunways(c);this.drawRingsAhead(c);this.drawChasePlane(c);this.drawWeather(c);c.restore();
+ drawWeather(c){if(this.mission===2){for(let i=0;i<3;i++)RR.fx.cloud(c,180+i*460,100+i%2*45,520,145,'dark',.4,i+30);c.strokeStyle='#cfdbd35c';c.lineWidth=1;for(let n=0;n<190;n++){const x=((n*173-this.time*260)%1340+1340)%1340,y=(n*79+this.time*390)%670;c.beginPath();c.moveTo(x,y);c.lineTo(x-22,y+34);c.stroke();}}if(this.boosting&&this.altitude<100){c.strokeStyle='#ddd7ae33';for(let n=0;n<12;n++){let x=n*117;c.beginPath();c.moveTo(x,580);c.lineTo(x+(x-640)*.08,620);c.stroke();}}const sf=Math.min(1,Math.max(0,(this.speed-60)/170))*(.3+.7*this.boostVis);if(sf>.04){c.save();c.strokeStyle='#f2eed6';c.lineWidth=2;for(let k=0;k<22;k++){const h1=Math.sin(k*127.1)*43758.5453,h2=Math.sin((k+50)*311.7)*43758.5453,f1=h1-Math.floor(h1),f2=h2-Math.floor(h2),edge=k%2,x0=edge?40+f1*200:1040+f1*200,y0=90+((f2*620+this.time*(420+760*sf))%580),len=(26+84*sf)*(.55+f1*.75);c.globalAlpha=(.05+.15*sf)*(.35+f2*.65);c.beginPath();c.moveTo(x0,y0);c.lineTo(x0+(edge?-1:1)*len*.22,y0+len);c.stroke();}c.restore();}}
+ draw(c,g){this.time=g.time;c.save();c.beginPath();c.rect(0,74,1280,579);c.clip();if(g.shake)c.translate(Math.sin(g.time*95)*g.shake,Math.cos(g.time*77)*g.shake*.5);if(this.mission===2)c.translate(Math.sin(g.time*19)*1.4,Math.cos(g.time*23));if(this.boostVis>.01){c.translate(640,420);const zs=1+this.boostVis*.07;c.scale(zs,zs);c.translate(-640,-420);c.translate(Math.sin(g.time*81)*1.3*this.boostVis,Math.cos(g.time*69)*1.1*this.boostVis);}if(RR.art.ready(this.mission===2?'storm':'chase')){RR.art.drawChase(c,{storm:this.mission===2,low:this.altitude<90,lateral:this.lateral,bank:this.bank,pitch:this.pitch,speed:this.speed,altitude:this.altitude});}else{this.drawSky(c);this.drawFarMountains(c);this.drawValleyFloor(c);}if(this.mission===2){c.fillStyle='#142c3838';c.fillRect(0,74,1280,579);}this.drawRunways(c);this.drawRingsAhead(c);this.drawChasePlane(c);this.drawWeather(c);c.restore();
   RR.fx.finish(c,{sunX:950,sunY:242,storm:this.mission===2});
   Object.assign(this.planeFacade,{x:this.z,y:this.altitude,vx:this.speed,pitch:this.pitch,grounded:this.grounded,throttle:this.throttle,fuel:this.fuel,hp:this.hp,boost:this.boost,stall:this.stall});const plane=g.plane,world=g.world;try{g.plane=this.planeFacade;g.world=this.worldFacade;RR.ui.draw(c,g);}finally{g.plane=plane;g.world=world;}
 
